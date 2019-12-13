@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+
+process.on('unhandledRejection', error => {
+  console.log('unhandledRejection', error.message);
+  // Undefined state node must restart
+  process.exit(-1);
+});
+
+process.on('uncaughtException', error => {
+  console.log('uncaughtException', error.message);
+  // Undefined state node must restart
+  process.exit(-1);
+});
+
+
+(async function(){
+  await require('./mongo.js')();
+  
+  var app = require('../app');
+  
+  await require('./startServer.js')(app, '3000', '127.0.0.1');
+
+})().catch(e=>{
+  console.log('-------------------Error-------------------');
+  console.error(e);
+  process.exit(-1);
+});
