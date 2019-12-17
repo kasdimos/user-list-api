@@ -12,10 +12,12 @@ process.on('uncaughtException', error => {
   process.exit(-1);
 });
 
+global.utils = {};
 
 (async function(){
-  await require('./mongo.js')();
-  
+  global.utils.dbmg = await require('./mongo.js')();
+  await require('./initMongo.js')();
+
   var app = require('../app');
   
   await require('./startServer.js')(app, '3000', '127.0.0.1');

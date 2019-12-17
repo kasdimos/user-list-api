@@ -4,11 +4,12 @@ const xss = require('../xss.js');
 
 module.exports = check('email')
   .isString()
-  .not().isEmpty()
+  .not().isEmpty().withMessage('Must not be empty')
   .trim()
   .normalizeEmail({all_lowercase: false, gmail_lowercase: false})
 
-  .isEmail()
+  .isEmail().withMessage('Invalid email')
+
 
   .custom((val) => xss.safe(val))
 
