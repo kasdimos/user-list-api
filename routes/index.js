@@ -40,14 +40,15 @@ router.post('/newUser', async function(req, res, next){
   res.json({success: true});
 });
 
+
 router.get('/users', async function(req, res, next){
   
-  console.log(req.query)
   if(req.query.page === undefined) req.query.page = null;
   if(req.query.limit === undefined) req.query.limit = null;
-  if(req.query.searchby === undefined) req.query.searchby = null;
+  if(req.query.sortby === undefined) req.query.sortby = null;
+  if(req.query.filter === undefined) req.query.filter = null;
 
-  let valRes = await validate(req.query, [ validators.page, validators.limit, validators.searchby]);
+  let valRes = await validate(req.query, [ validators.page, validators.limit, validators.sortby, validators.filter]);
   if(valRes.dataError){
     console.log(valRes.dataError.message);
     return res.json('Validation errors occured');
@@ -57,8 +58,25 @@ router.get('/users', async function(req, res, next){
     return res.json(valRes.validationErrors);
   }
 
+  let sort = {};
+  sort[req.query.sortby] = 1;
+  
+  let limit = req.query.limit ? req.query.limit : 20;
+
+  let q = [{}];
+  
+  let rgx = new RegExp(req.query.filter, 'i');
+
+  if(req.query.filter) q[0] = { $or: [
+    {name: rgx},
+    {email: rgx}
+  ]};
+
   res.json(
-    await colUsers.find({})
+    await colUsers.find(...q)
+    .sort(sort)
+    .skip(limit * (req.query.page ? req.query.page-1 : 0))
+    .limit(limit)
     .toArray()
   );
 

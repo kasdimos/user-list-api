@@ -1,10 +1,11 @@
 
 const check = require('../ezValidator/check');
+const sorts = ['name', 'email', 'role', 'signup', 'lastLogin', 'status'];
 
-module.exports = check('searchby')
+module.exports = check('sortby')
   .optional({nullable: true})
   .isString()
   .not().isEmpty()
-  .custom(val => (val === 'name' || val === 'email') ? true : false)
+  .custom(val => sorts.indexOf(val) >= 0)
   .withMessage('Invalid search term.');
   
